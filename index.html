@@ -98,6 +98,7 @@
         <h1>DJ <span>Órmund</span></h1>
 
         <div class="button-grid">
+            
             <button class="btn-ambiente"
                 data-list="PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N"
                 data-video="JEnbHKN_G1g"
@@ -133,20 +134,16 @@
             const playlistId = elemento.getAttribute('data-list');
             const videoId = elemento.getAttribute('data-video');
             
-            // Sorteia número entre 1 e 50 (mais seguro que 100 se a playlist for pequena)
-            const randomIndex = Math.floor(Math.random() * 25) + 1;
+            // ATUALIZADO: Sorteia número entre 1 e 15
+            const randomIndex = Math.floor(Math.random() * 15) + 1;
 
             let finalUrl = "";
 
             if (videoId) {
-                // MODO AUTOMÁTICO (Se temos um vídeo de âncora)
-                // Usa watch?v=ID&list=LIST&index=RANDOM
-                // Isso força o player a abrir e tentar pular para o index.
+                // MODO AUTOMÁTICO: Usa o vídeo âncora + index sorteado
                 finalUrl = `https://www.youtube.com/watch?v=${videoId}&list=${playlistId}&index=${randomIndex}`;
             } else {
-                // MODO SEGURO (Batalha)
-                // Abre a playlist. O Mestre precisa clicar em "Shuffle".
-                // É melhor que dar erro de "Vídeo indisponível".
+                // MODO SEGURO: Abre a playlist
                 finalUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
             }
 
