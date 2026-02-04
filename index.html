@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -49,9 +48,7 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        h1 span {
-            color: #ffd700;
-        }
+        h1 span { color: #ffd700; }
 
         .button-grid {
             display: flex;
@@ -87,25 +84,11 @@
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        .icon {
-            font-size: 1.5rem;
-        }
-
-        .btn-ambiente {
-            background: linear-gradient(145deg, #2e7d32, #1b5e20);
-        }
-
-        .btn-batalha {
-            background: linear-gradient(145deg, #c62828, #b71c1c);
-        }
-
-        .btn-suspense {
-            background: linear-gradient(145deg, #6a1b9a, #4a148c);
-        }
-
-        .btn-triste {
-            background: linear-gradient(145deg, #1565c0, #0d47a1);
-        }
+        .icon { font-size: 1.5rem; }
+        .btn-ambiente { background: linear-gradient(145deg, #2e7d32, #1b5e20); }
+        .btn-batalha { background: linear-gradient(145deg, #c62828, #b71c1c); }
+        .btn-suspense { background: linear-gradient(145deg, #6a1b9a, #4a148c); }
+        .btn-triste { background: linear-gradient(145deg, #1565c0, #0d47a1); }
     </style>
 </head>
 
@@ -116,25 +99,29 @@
 
         <div class="button-grid">
             <button class="btn-ambiente"
-                data-link="https://www.youtube.com/watch?v=JEnbHKN_G1g&list=PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N"
+                data-list="PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N"
+                data-video="JEnbHKN_G1g"
                 onclick="tocar(this)">
                 <span class="icon">🌲</span> Ambiente
             </button>
 
             <button class="btn-batalha"
-                data-link="https://www.youtube.com/playlist?list=PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR"
+                data-list="PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR"
+                data-video="" 
                 onclick="tocar(this)">
                 <span class="icon">⚔️</span> Batalha
             </button>
 
             <button class="btn-suspense"
-                data-link="https://www.youtube.com/playlist?list=PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N"
+                data-list="PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm"
+                data-video="4EC4yO5ckzE"
                 onclick="tocar(this)">
-                <span class="icon">👁️</span> Suspense / Lore
+                <span class="icon">👁️</span> Suspense
             </button>
 
             <button class="btn-triste"
-                data-link="https://www.youtube.com/watch?v=Kc9_aTUFZCE&list=PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE"
+                data-list="PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE"
+                data-video="Kc9_aTUFZCE"
                 onclick="tocar(this)">
                 <span class="icon">😢</span> Emocional
             </button>
@@ -143,20 +130,31 @@
 
     <script>
         function tocar(elemento) {
-            const baseUrl = elemento.getAttribute('data-link');
+            const playlistId = elemento.getAttribute('data-list');
+            const videoId = elemento.getAttribute('data-video');
+            
+            // Sorteia número entre 1 e 50 (mais seguro que 100 se a playlist for pequena)
+            const randomIndex = Math.floor(Math.random() * 25) + 1;
 
-            // Sorteia qualquer música entre a 1 e a 100
-            const randomIndex = Math.floor(Math.random() * 100) + 1;
+            let finalUrl = "";
 
-            // Adiciona o index na URL
-            const finalUrl = baseUrl + '&index=' + randomIndex;
+            if (videoId) {
+                // MODO AUTOMÁTICO (Se temos um vídeo de âncora)
+                // Usa watch?v=ID&list=LIST&index=RANDOM
+                // Isso força o player a abrir e tentar pular para o index.
+                finalUrl = `https://www.youtube.com/watch?v=${videoId}&list=${playlistId}&index=${randomIndex}`;
+            } else {
+                // MODO SEGURO (Batalha)
+                // Abre a playlist. O Mestre precisa clicar em "Shuffle".
+                // É melhor que dar erro de "Vídeo indisponível".
+                finalUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
+            }
 
-            // Vibração tátil
+            // Feedback tátil
             if (navigator.vibrate) { navigator.vibrate(50); }
 
             window.location.href = finalUrl;
         }
     </script>
 </body>
-
 </html>
