@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DJ Órmund - Pro Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-grad: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --card-bg: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background: var(--bg-grad);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin: 10px 0 20px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 span {
+            color: #ffd700;
+        }
+
+        /* O Player de Vídeo */
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 16 / 9;
+            /* Mantém formato de TV */
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #youtube-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        button {
+            padding: 20px 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s, filter 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .icon {
+            font-size: 1.8rem;
+        }
+
+        .btn-ambiente {
+            background: linear-gradient(145deg, #2e7d32, #1b5e20);
+        }
+
+        .btn-batalha {
+            background: linear-gradient(145deg, #c62828, #b71c1c);
+        }
+
+        .btn-suspense {
+            background: linear-gradient(145deg, #6a1b9a, #4a148c);
+        }
+
+        .btn-triste {
+            background: linear-gradient(145deg, #1565c0, #0d47a1);
+        }
+
+        /* Estado de "Tocando Agora" */
+        button.active {
+            ring: 3px solid #ffd700;
+            filter: brightness(1.2);
+        }
+
+        .status {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>DJ <span>Órmund</span></h1>
+
+    <div class="player-wrapper">
+        <div id="youtube-player"></div>
+    </div>
+
+    <div class="button-grid">
+        <button class="btn-ambiente" onclick="loadMood('PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N', this)">
+            <span class="icon">🌲</span> Ambiente
+        </button>
+
+        <button class="btn-batalha" onclick="loadMood('PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR', this)">
+            <span class="icon">⚔️</span> Batalha
+        </button>
+
+        <button class="btn-suspense" onclick="loadMood('PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm', this)">
+            <span class="icon">👁️</span> Suspense
+        </button>
+
+        <button class="btn-triste" onclick="loadMood('PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE', this)">
+            <span class="icon">😢</span> Emocional
+        </button>
+    </div>
+
+    <div class="status" id="status-text">Aguardando comando...</div>
+
+    <script>
+        // 1. Carrega a API do YouTube Assincronamente
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        var playerReady = false;
+
+        // 2. Quando a API estiver pronta, cria o player
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'playsinline': 1, // Importante para mobile
+                    'controls': 1,    // Mostra controles
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            playerReady = true;
+            document.getElementById('status-text').innerText = "Sistema pronto. Escolha um mood.";
+        }
+
+        function onPlayerStateChange(event) {
+            // Se quiser fazer algo quando o vídeo acaba ou pausa
+        }
+
+        // 3. Função Mágica para Carregar e Shuffle
+        function loadMood(playlistId, btnElement) {
+            if (!playerReady) return alert("Carregando player... tente em 2 segundos.");
+
+            // Visual: atualiza botões
+            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('status-text').innerText = "Carregando Mood...";
+
+            // Carrega a Playlist
+            player.loadPlaylist({
+                listType: 'playlist',
+                list: playlistId
+            });
+
+            // TRUQUE DO SHUFFLE:
+            // A API precisa de um tempinho para reconhecer a playlist carregada
+            // antes de aceitar o comando de shuffle.
+            setTimeout(() => {
+                player.setShuffle(true);
+                player.setLoop(true); // Loop infinito na playlist
+
+                // Força passar para o próximo para o shuffle "pegar" visualmente
+                // e não começar sempre no index 0 original
+                player.nextVideo();
+
+                document.getElementById('status-text').innerText = "Tocando (Aleatório Ativo) 🎲";
+            }, 1000); // Espera 1 segundo
+        }
+    </script>
+</body>
+
+</html>
