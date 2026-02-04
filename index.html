@@ -115,36 +115,41 @@
         <h1>DJ <span>Órmund</span></h1>
 
         <div class="button-grid">
-            <button class="btn-ambiente" data-list="PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N" onclick="tocar(this)">
-                <span class="icon">🌲</span> Ambiente/Exploração
+            <button class="btn-ambiente"
+                data-link="https://www.youtube.com/watch?v=JEnbHKN_G1g&list=PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N"
+                onclick="tocar(this)">
+                <span class="icon">🌲</span> Ambiente
             </button>
 
-            <button class="btn-batalha" data-list="PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR" onclick="tocar(this)">
+            <button class="btn-batalha"
+                data-link="https://www.youtube.com/playlist?list=PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR"
+                onclick="tocar(this)">
                 <span class="icon">⚔️</span> Batalha
             </button>
 
-            <button class="btn-suspense" data-list="PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm" onclick="tocar(this)">
-                <span class="icon">👁️</span> Suspense / Lore Drop
+            <button class="btn-suspense"
+                data-link="https://www.youtube.com/playlist?list=PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N"
+                onclick="tocar(this)">
+                <span class="icon">👁️</span> Suspense / Lore
             </button>
 
-            <button class="btn-triste" data-list="PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE" onclick="tocar(this)">
-                <span class="icon">😢</span> Triste/Emocional
+            <button class="btn-triste"
+                data-link="https://www.youtube.com/watch?v=Kc9_aTUFZCE&list=PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE"
+                onclick="tocar(this)">
+                <span class="icon">😢</span> Emocional
             </button>
         </div>
     </div>
 
     <script>
         function tocar(elemento) {
-            const playlistId = elemento.getAttribute('data-list');
+            const baseUrl = elemento.getAttribute('data-link');
 
             // Sorteia qualquer música entre a 1 e a 100
             const randomIndex = Math.floor(Math.random() * 100) + 1;
 
-            // MONTAGEM DA URL:
-            // Usamos 'watch?' em vez de 'playlist?' para abrir o player direto.
-            // Não colocamos 'v=...', apenas 'list=ID' e 'index=RANDOM'.
-            // Isso força o YouTube a abrir o player na lista, na posição sorteada.
-            const finalUrl = `https://www.youtube.com/watch?list=${playlistId}&index=${randomIndex}`;
+            // Adiciona o index na URL
+            const finalUrl = baseUrl + '&index=' + randomIndex;
 
             // Vibração tátil
             if (navigator.vibrate) { navigator.vibrate(50); }
