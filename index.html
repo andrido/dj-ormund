@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DJ Órmund - Shuffle Fix</title>
+    <title>DJ Órmund - Cache Fix</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -121,7 +121,7 @@
                     'playsinline': 1,
                     'controls': 1,
                     'modestbranding': 1,
-                    'rel': 0 // Tenta evitar vídeos relacionados de outros canais
+                    'rel': 0
                 },
                 events: {
                     'onStateChange': onPlayerStateChange
@@ -144,24 +144,34 @@
             btn.classList.add('active');
             document.getElementById('track-title').innerText = "Carregando...";
 
-            // LÓGICA DE SHUFFLE FORÇADO
-            // Sorteia um número entre 0 e 15 (para pegar uma das primeiras 15 músicas)
-            // Se a playlist tiver menos que 15, o YouTube ajusta sozinho, não quebra.
-            const randomStartIndex = Math.floor(Math.random() * 15);
+            // PASSO 1: LIMPEZA AGRESSIVA
+            // Para o vídeo anterior imediatamente.
+            // Isso força o player a "esquecer" o que estava fazendo.
+            if(player && player.stopVideo) {
+                player.stopVideo(); 
+                player.clearVideo(); // Limpa o display se possível
+            }
 
-            // Carrega a playlist JÁ começando na música sorteada
-            player.loadPlaylist({
-                listType: 'playlist',
-                list: playlistId,
-                index: randomStartIndex 
-            });
-
-            // Garante que o modo Shuffle fique ligado para as próximas
-            // Colocamos num pequeno timeout para garantir que a playlist foi reconhecida
+            // PASSO 2: PEQUENO DELAY (Respiro)
+            // Damos 100ms pro player processar o "stop" antes de carregar o novo.
             setTimeout(() => {
-                player.setLoop(true);
-                player.setShuffle(true);
-            }, 500);
+                
+                const randomStartIndex = Math.floor(Math.random() * 10); // Começa entre as 10 primeiras
+
+                player.loadPlaylist({
+                    listType: 'playlist',
+                    list: playlistId,
+                    index: randomStartIndex 
+                });
+
+                // PASSO 3: CONFIGURA O LOOP/SHUFFLE
+                // Delay um pouco maior para garantir que a NOVA lista já foi reconhecida
+                setTimeout(() => {
+                    player.setLoop(true);
+                    player.setShuffle(true);
+                }, 1000);
+
+            }, 100); // Fim do delay de respiro
         }
 
         function setVolume(val) {
