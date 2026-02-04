@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DJ Órmund - Launcher</title>
+    <title>DJ Órmund - Mesa de Som</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0f0c29;
+            --surface-color: rgba(255, 255, 255, 0.05);
             --highlight: #ffd700;
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
         }
 
         body {
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: #ffffff;
+            color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 20px;
@@ -21,110 +24,290 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            box-sizing: border-box;
         }
 
-        h1 {
-            margin: 0 0 40px 0;
-            font-weight: 900;
-            font-size: 2rem;
-            text-transform: uppercase;
+        /* CABEÇALHO */
+        header {
             text-align: center;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
         h1 span { color: var(--highlight); }
 
+        /* GRID DE BOTÕES (No Topo) */
         .controls-area {
             width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            max-width: 500px;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 colunas */
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .mood-btn {
-            padding: 25px;
+            padding: 15px;
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             color: white;
             font-family: inherit;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center; /* Centraliza texto e icone */
-            gap: 15px;
-            transition: transform 0.1s, box-shadow 0.1s;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.3); /* Efeito 3D Sólido */
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            opacity: 0.8; /* Levemente transparente quando inativo */
+        }
+
+        .mood-btn:active { transform: scale(0.96); }
+        .mood-btn.active { 
+            opacity: 1; 
+            box-shadow: 0 0 15px var(--highlight); 
+            border: 2px solid var(--highlight);
+            transform: scale(1.02);
+        }
+
+        /* Cores Específicas */
+        .btn-amb { background: linear-gradient(145deg, #1b5e20, #2e7d32); }
+        .btn-bat { background: linear-gradient(145deg, #b71c1c, #c62828); }
+        .btn-sus { background: linear-gradient(145deg, #4a148c, #6a1b9a); }
+        .btn-tri { background: linear-gradient(145deg, #0d47a1, #1565c0); }
+        .icon { font-size: 1.4rem; }
+
+        /* ÁREA DO PLAYER (Abaixo) */
+        .player-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--surface-color);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
             position: relative;
-            text-decoration: none; /* Remove sublinhado de link */
         }
 
-        .mood-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+        /* O vídeo em si */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Proporção 16:9 */
+            background: #000;
+        }
+        
+        #youtube-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; /* Começa invisível para esconder o shuffle feio */
+            transition: opacity 0.5s ease;
         }
 
-        /* Cores */
-        .btn-amb { background: linear-gradient(145deg, #2e7d32, #1b5e20); }
-        .btn-bat { background: linear-gradient(145deg, #c62828, #b71c1c); }
-        .btn-sus { background: linear-gradient(145deg, #6a1b9a, #4a148c); }
-        .btn-tri { background: linear-gradient(145deg, #1565c0, #0d47a1); }
-        
-        .icon { font-size: 1.8rem; }
-        
-        .hint {
-            margin-top: 30px;
-            font-size: 0.8rem;
-            opacity: 0.6;
+        #youtube-player.visible { opacity: 1; }
+
+        /* Cortina de Loading */
+        .loading-curtain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .loading-curtain.hidden { opacity: 0; }
+        .loader {
+            width: 30px; height: 30px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: var(--highlight);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* INFO DA MÚSICA */
+        .track-info {
+            padding: 15px;
             text-align: center;
         }
+        
+        .now-playing-label {
+            font-size: 0.7rem;
+            color: var(--highlight);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .track-title {
+            font-size: 1rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 1.2rem;
+        }
+
+        /* CONTROLE DE VOLUME SIMPLES */
+        .volume-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 20px 20px 20px;
+        }
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--highlight);
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
 
-    <h1>Mesa <span>Órmund</span></h1>
+    <header>
+        <h1>Mesa <span>Órmund</span></h1>
+    </header>
 
     <div class="controls-area">
-        <div class="mood-btn btn-amb" onclick="abrir('PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N', 'JEnbHKN_G1g')">
+        <button class="mood-btn btn-amb" onclick="mudarMood('PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N', this)">
             <span class="icon">🌲</span> Ambiente
-        </div>
+        </button>
 
-        <div class="mood-btn btn-bat" onclick="abrir('PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR', null)">
+        <button class="mood-btn btn-bat" onclick="mudarMood('PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR', this)">
             <span class="icon">⚔️</span> Batalha
-        </div>
+        </button>
 
-        <div class="mood-btn btn-sus" onclick="abrir('PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm', '4EC4yO5ckzE')">
+        <button class="mood-btn btn-sus" onclick="mudarMood('PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm', this)">
             <span class="icon">👁️</span> Suspense
+        </button>
+
+        <button class="mood-btn btn-tri" onclick="mudarMood('PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE', this)">
+            <span class="icon">😢</span> Emocional
+        </button>
+    </div>
+
+    <div class="player-container">
+        <div class="video-wrapper">
+            <div id="youtube-player"></div>
+            <div class="loading-curtain" id="curtain">
+                <div class="loader"></div>
+            </div>
         </div>
 
-        <div class="mood-btn btn-tri" onclick="abrir('PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE', 'Kc9_aTUFZCE')">
-            <span class="icon">😢</span> Emocional
+        <div class="track-info">
+            <div class="now-playing-label">Tocando Agora</div>
+            <div class="track-title" id="track-title">Aguardando seleção...</div>
+        </div>
+
+        <div class="volume-control">
+            <span style="font-size: 0.8rem">🔈</span>
+            <input type="range" min="0" max="100" value="100" oninput="setVolume(this.value)">
+            <span style="font-size: 0.8rem">🔊</span>
         </div>
     </div>
 
-    <div class="hint">Toque para abrir no YouTube App 🚀</div>
-
     <script>
-        function abrir(playlistId, videoAnchorId) {
-            // Sorteia um número entre 1 e 20 para começar aleatório
-            // Se a playlist for pequena, o YouTube ajusta sozinho.
-            const randomIndex = Math.floor(Math.random() * 20) + 1;
-            
-            let finalUrl = "";
+        // Carrega API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            if (videoAnchorId) {
-                // Tenta forçar o início aleatório usando um vídeo âncora
-                finalUrl = `https://www.youtube.com/watch?v=${videoAnchorId}&list=${playlistId}&index=${randomIndex}`;
-            } else {
-                // Modo Seguro (Batalha): Abre a playlist pura
-                finalUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
+        var player;
+        var isShufflePending = false;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 1, // Mantemos controles nativos por segurança
+                    'fs': 0,       // Tira botão fullscreen pra ficar limpo
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            document.getElementById('track-title').innerText = "Pronto para rodar iniciativa.";
+        }
+
+        // Monitora mudanças para atualizar o nome da música
+        function onPlayerStateChange(event) {
+            // Se estiver TOCANDO (State = 1)
+            if (event.data == YT.PlayerState.PLAYING) {
+                // Pega o título do vídeo atual
+                var videoData = player.getVideoData();
+                if(videoData && videoData.title) {
+                    document.getElementById('track-title').innerText = videoData.title;
+                }
+                
+                // Remove a cortina (fade in)
+                document.getElementById('curtain').classList.add('hidden');
+                document.getElementById('youtube-player').classList.add('visible');
+                
+                isShufflePending = false;
             }
+        }
 
-            // Abre em nova aba (no celular, isso força o deep link pro App do YouTube)
-            window.open(finalUrl, '_blank');
+        function mudarMood(playlistId, btn) {
+            // UI: Feedback nos botões
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // 1. Baixa a cortina de loading imediatamente
+            document.getElementById('curtain').classList.remove('hidden');
+            document.getElementById('youtube-player').classList.remove('visible'); // Esconde o vídeo
+            document.getElementById('track-title').innerText = "Sintonizando...";
+
+            // 2. Carrega a playlist
+            player.loadPlaylist({
+                listType: 'playlist',
+                list: playlistId
+            });
+
+            isShufflePending = true;
+
+            // 3. Aplica o Shuffle "Ninja"
+            // Esperamos um tiquinho para a playlist carregar no buffer do player
+            setTimeout(() => {
+                player.setShuffle(true);
+                player.setLoop(true);
+                // Força pular para o próximo vídeo já na ordem aleatória
+                player.nextVideo();
+            }, 500); 
+            // A cortina só vai subir quando o evento 'PLAYING' disparar lá em cima
+        }
+
+        function setVolume(val) {
+            if(player && player.setVolume) {
+                player.setVolume(val);
+            }
         }
     </script>
 </body>
