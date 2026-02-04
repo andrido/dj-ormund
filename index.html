@@ -3,136 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DJ Órmund - Mobile Pro</title>
+    <title>DJ Órmund - Launcher</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0f0c29; --accent: #ffd700; }
+        :root {
+            --bg-color: #0f0c29;
+            --highlight: #ffd700;
+        }
+
         body {
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: white; font-family: 'Montserrat', sans-serif;
-            margin: 0; padding: 15px; min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        h1 { margin: 0 0 20px; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; }
-        h1 span { color: var(--accent); }
+        h1 {
+            margin: 0 0 40px 0;
+            font-weight: 900;
+            font-size: 2rem;
+            text-transform: uppercase;
+            text-align: center;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        h1 span { color: var(--highlight); }
 
-        /* ÁREA DOS BOTÕES (Moods) */
-        .grid-moods {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            width: 100%; max-width: 500px; margin-bottom: 20px;
+        .controls-area {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .btn-mood {
-            padding: 15px; border: none; border-radius: 12px;
-            color: white; font-weight: 700; text-transform: uppercase;
-            font-size: 0.85rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 5px rgba(0,0,0,0.3); transition: transform 0.1s;
-        }
-        .btn-mood:active { transform: scale(0.95); }
-        .btn-mood.active { ring: 2px solid var(--accent); filter: brightness(1.2); }
-
-        .amb { background: linear-gradient(145deg, #1b5e20, #2e7d32); }
-        .bat { background: linear-gradient(145deg, #b71c1c, #c62828); }
-        .sus { background: linear-gradient(145deg, #4a148c, #6a1b9a); }
-        .tri { background: linear-gradient(145deg, #0d47a1, #1565c0); }
-
-        /* PLAYER DE VÍDEO */
-        .player-box {
-            width: 100%; max-width: 500px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
+        .mood-btn {
+            padding: 25px;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-family: inherit;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centraliza texto e icone */
+            gap: 15px;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.3); /* Efeito 3D Sólido */
+            position: relative;
+            text-decoration: none; /* Remove sublinhado de link */
         }
 
-        .video-frame {
-            position: relative; width: 100%; padding-top: 56.25%; /* 16:9 */
-            background: black;
+        .mood-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
         }
-        #yt-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        /* CONTROLES EXTRAS (Pular música) */
-        .controls {
-            padding: 15px; display: flex; flex-direction: column; gap: 10px; align-items: center;
+        /* Cores */
+        .btn-amb { background: linear-gradient(145deg, #2e7d32, #1b5e20); }
+        .btn-bat { background: linear-gradient(145deg, #c62828, #b71c1c); }
+        .btn-sus { background: linear-gradient(145deg, #6a1b9a, #4a148c); }
+        .btn-tri { background: linear-gradient(145deg, #1565c0, #0d47a1); }
+        
+        .icon { font-size: 1.8rem; }
+        
+        .hint {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-align: center;
         }
-        .track-name { 
-            text-align: center; font-size: 0.9rem; min-height: 1.2rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%;
-            color: var(--accent); font-weight: 700;
-        }
-        .media-btns { display: flex; gap: 15px; }
-        .btn-media {
-            background: rgba(255,255,255,0.1); border: none; color: white;
-            width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-media:active { background: var(--accent); color: black; }
-
     </style>
 </head>
 <body>
 
     <h1>Mesa <span>Órmund</span></h1>
 
-    <div class="grid-moods">
-        <button class="btn-mood amb" onclick="tocarPlaylist('PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N', this)">
-            <span>🌲</span> Ambiente
-        </button>
-        <button class="btn-mood bat" onclick="tocarPlaylist('PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR', this)">
-            <span>⚔️</span> Batalha
-        </button>
-        <button class="btn-mood sus" onclick="tocarPlaylist('PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm', this)">
-            <span>👁️</span> Suspense
-        </button>
-        <button class="btn-mood tri" onclick="tocarPlaylist('PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE', this)">
-            <span>😢</span> Emocional
-        </button>
+    <div class="controls-area">
+        <div class="mood-btn btn-amb" onclick="abrir('PLF6SkA3X2l5AYkMzK2SUNC4Nu-jQ6T14N', 'JEnbHKN_G1g')">
+            <span class="icon">🌲</span> Ambiente
+        </div>
+
+        <div class="mood-btn btn-bat" onclick="abrir('PLF6SkA3X2l5DROon85Vu-E4z5j4MG_UDR', null)">
+            <span class="icon">⚔️</span> Batalha
+        </div>
+
+        <div class="mood-btn btn-sus" onclick="abrir('PLF6SkA3X2l5B6wwhelnZssF_iDPhQmoQm', '4EC4yO5ckzE')">
+            <span class="icon">👁️</span> Suspense
+        </div>
+
+        <div class="mood-btn btn-tri" onclick="abrir('PLF6SkA3X2l5B_uU8z-g_YO2ThWYIhcyPE', 'Kc9_aTUFZCE')">
+            <span class="icon">😢</span> Emocional
+        </div>
     </div>
 
-    <div class="player-box">
-        <div class="video-frame">
-            <div id="yt-player"></div>
-        </div>
-        
-        <div class="controls">
-            <div class="track-name" id="track-name">Selecione um Mood</div>
-            
-            <div class="media-btns">
-                <button class="btn-media" onclick="player.previousVideo()">⏮</button>
-                <button class="btn-media" onclick="togglePlay()">⏯</button>
-                <button class="btn-media" onclick="player.nextVideo()">⏭</button>
-            </div>
-        </div>
-    </div>
+    <div class="hint">Toque para abrir no YouTube App 🚀</div>
 
     <script>
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        function abrir(playlistId, videoAnchorId) {
+            // Sorteia um número entre 1 e 20 para começar aleatório
+            // Se a playlist for pequena, o YouTube ajusta sozinho.
+            const randomIndex = Math.floor(Math.random() * 20) + 1;
+            
+            let finalUrl = "";
 
-        var player;
-        
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('yt-player', {
-                height: '100%',
-                width: '100%',
-                playerVars: {
-                    'playsinline': 1, // Essencial para mobile não abrir fullscreen
-                    'controls': 1,    // Controles nativos
-                    'modestbranding': 1
-                },
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
-            });
+            if (videoAnchorId) {
+                // Tenta forçar o início aleatório usando um vídeo âncora
+                finalUrl = `https://www.youtube.com/watch?v=${videoAnchorId}&list=${playlistId}&index=${randomIndex}`;
+            } else {
+                // Modo Seguro (Batalha): Abre a playlist pura
+                finalUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
+            }
+
+            // Abre em nova aba (no celular, isso força o deep link pro App do YouTube)
+            window.open(finalUrl, '_blank');
         }
-
-        function tocarPlaylist(playlistId, btn) {
-            // Visual dos botões
-            document.querySelectorAll('.btn-mood').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('track-name').innerText = "Carregando...";
-
-            //
+    </script>
+</body>
+</html>
